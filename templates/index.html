@@ -17,6 +17,11 @@
                 <input type="text" class="form-control" id="share_link" name="share_link"
                     placeholder="Enter BaiduNetDisk share link">
             </div>
+            <div class="form-group">
+                <label for="token">Token</label>
+                <input type="token" class="form-control" id="token" name="token"
+                    placeholder="Enter token">
+            </div>
             <button type="submit" class="btn btn-primary">Transfer</button>
             <div class="mt-3">
                 <pre>
@@ -36,10 +41,11 @@ https://pan.baidu.com/s/1VYzSl7465sdrQXe8GT5RdQ?pwd=704e
         document.getElementById('transfer-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const shareLink = document.getElementById('share_link').value;
+            const token = document.getElementById('token').value;
             const output = document.getElementById('output');
             output.value = '';
 
-            const eventSource = new EventSource('/transfer?' + new URLSearchParams({ share_link: shareLink }));
+            const eventSource = new EventSource('/transfer?' + new URLSearchParams({ share_link: shareLink, token: token }));
             eventSource.onmessage = function (event) {
                 output.value += event.data + '\n';
                 output.scrollTop = output.scrollHeight;

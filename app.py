@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 import subprocess
 import os
 
-load_dotenv(dotenv_path=f".env.{os.getenv('APP_ENV', 'development')}")
+load_dotenv(dotenv_path='.env')
+load_dotenv(dotenv_path=f".env.{os.getenv('APP_ENV', 'development')}", override=True)
 
 def init():
     cookies = os.getenv('COOKIES', '')
@@ -42,6 +43,10 @@ def index():
 @app.route('/transfer', methods=['GET'])
 def transfer():
     share_link = request.args.get('share_link')
+    token = request.args.get('token')
+    if token != os.getenv('TOKEN'):
+        return Response("Unauthorized", status=401)
+
     def generate():
         process = subprocess.Popen(['./BaiduPCS-Go', 'transfer', share_link, '--collect'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         for line in process.stdout:
