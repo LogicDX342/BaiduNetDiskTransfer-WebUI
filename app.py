@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 import subprocess
 import os
 
-load_dotenv(dotenv_path='.env')
-load_dotenv(dotenv_path=f".env.{os.getenv('APP_ENV', 'development')}", override=True)
+load_dotenv()
+if os.getenv('APP_ENV') == 'development':
+    load_dotenv('.env.development', override=True)
 
 def init():
     cookies = os.getenv('COOKIES', '')
