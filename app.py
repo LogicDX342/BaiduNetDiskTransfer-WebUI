@@ -34,7 +34,9 @@ def init():
 
 app = Flask(__name__)
 with app.app_context():
-    init()
+    config_dir = os.getenv('BAIDUPCS_GO_CONFIG_DIR', os.path.join(os.getenv('HOME', '/root'), '.config/BaiduPCS-Go'))
+    if not os.path.exists(config_dir):
+        init()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
