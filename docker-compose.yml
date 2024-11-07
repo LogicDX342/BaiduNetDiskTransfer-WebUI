@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  baidunetdisk-transfer:
+    image: "logicdx342/baidunetdisktransfer-webui:latest"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./config:/config
+    environment:
+      - COOKIES=""
+      - TRANSFER_DIR=/PCS-Transfer
