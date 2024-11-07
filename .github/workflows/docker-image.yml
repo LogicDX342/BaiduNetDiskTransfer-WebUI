@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      APP_ENV: production
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
