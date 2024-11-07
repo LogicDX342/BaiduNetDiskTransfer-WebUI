@@ -8,4 +8,4 @@ ENV BAIDUPCS_GO_CONFIG_DIR=/config
 EXPOSE 5000
 
 ENV APP_ENV=development
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]

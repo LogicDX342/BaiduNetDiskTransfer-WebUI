@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, Response
+from dotenv import load_dotenv
 import subprocess
 import os
+
+load_dotenv(dotenv_path=f".env.{os.getenv('APP_ENV', 'development')}")
 
 def init():
     cookies = os.getenv('COOKIES', '')
