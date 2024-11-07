@@ -7,6 +7,3 @@ services:
       - "5000:5000"
     volumes:
       - ./config:/config
-    environment:
-      - COOKIES=""
-      - TRANSFER_DIR=/PCS-Transfer
