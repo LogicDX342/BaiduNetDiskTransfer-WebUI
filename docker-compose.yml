@@ -8,3 +8,5 @@ services:
     volumes:
       - ./config:/config
       - ./.env:/app/.env
+    environment:
+      - APP_ENV=production
