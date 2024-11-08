@@ -36,7 +36,7 @@ def init():
 app = Flask(__name__)
 with app.app_context():
     config_dir = os.getenv('BAIDUPCS_GO_CONFIG_DIR', os.path.join(os.getenv('HOME', '/root'), '.config/BaiduPCS-Go'))
-    if not os.path.exists(config_dir):
+    if not os.path.exists(config_dir) or not os.listdir(config_dir):
         init()
 
 @app.route('/', methods=['GET', 'POST'])
@@ -51,7 +51,8 @@ def transfer():
         return Response("Unauthorized", status=401)
 
     def generate():
-        process = subprocess.Popen(['./BaiduPCS-Go', 'transfer', share_link, '--collect'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # TODO: '--collect' option might result in some issues. Waiting for PCS-Go to fix it.
+        process = subprocess.Popen(['./BaiduPCS-Go', 'transfer', share_link], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         for line in process.stdout:
             yield f"data:{line}\n\n"
         for line in process.stderr:
