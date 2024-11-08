@@ -4,8 +4,15 @@ import subprocess
 import os
 
 load_dotenv()
-if os.getenv('APP_ENV') == 'development':
+if os.getenv('APP_ENV', 'development') == 'development':
     load_dotenv('.env.development', override=True)
+
+def run_command(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    for line in process.stdout:
+        yield f"data:{line}\n\n"
+    for line in process.stderr:
+        yield f"data:{line}\n\n"
 
 def init():
     cookies = os.getenv('COOKIES', '')
@@ -22,16 +29,12 @@ def init():
 
     commands = [
         ['./BaiduPCS-Go', 'login', '--bduss', bduss, '--stoken', stoken],
-        ['./BaiduPCS-Go', 'mkdir', download_dir],
-        ['./BaiduPCS-Go', 'cd', download_dir]
+        ['./BaiduPCS-Go', 'mkdir', download_dir]
     ]
 
     for command in commands:
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        for line in process.stdout:
-            print(line)
-        for line in process.stderr:
-            print(line)
+        for output in run_command(command):
+            print(output)
 
 app = Flask(__name__)
 with app.app_context():
@@ -47,17 +50,20 @@ def index():
 def transfer():
     share_link = request.args.get('share_link')
     token = request.args.get('token')
+    
     if token != os.getenv('TOKEN'):
         return Response("Unauthorized", status=401)
+    
+    if request.headers.get('Accept') == 'text/event-stream':
+        def generate():
+            download_dir = os.getenv('TRANSFER_DIR', '/PCS-Transfer')
+            for output in run_command(['./BaiduPCS-Go', 'cd', download_dir]):
+                print(output)
+            yield from run_command(['./BaiduPCS-Go', 'transfer', share_link])
 
-    def generate():
-        # TODO: '--collect' option might result in some issues. Waiting for PCS-Go to fix it.
-        process = subprocess.Popen(['./BaiduPCS-Go', 'transfer', share_link], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        for line in process.stdout:
-            yield f"data:{line}\n\n"
-        for line in process.stderr:
-            yield f"data:{line}\n\n"
-    return Response(generate(), mimetype='text/event-stream')
+        return Response(generate(), mimetype='text/event-stream')
+    else:
+        return Response("Token validated", status=200)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
